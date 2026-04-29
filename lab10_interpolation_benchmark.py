@@ -39,9 +39,9 @@ def benchmark_interpolation(img_4k, target_size=(224, 224), iterations=100):
     visuals = {}
 
     methods = [
-        ("INTER_NEAREST", "TODO_FLAG_1"),
-        ("INTER_LINEAR",  "TODO_FLAG_2"),
-        ("INTER_CUBIC",   "TODO_FLAG_3")
+        ("INTER_NEAREST", cv2.INTER_NEAREST),   # TODO 1 flag
+        ("INTER_LINEAR",  cv2.INTER_LINEAR),    # TODO 2 flag
+        ("INTER_CUBIC",   cv2.INTER_CUBIC)      # TODO 3 flag
     ]
 
     for name, flag in methods:
@@ -49,18 +49,18 @@ def benchmark_interpolation(img_4k, target_size=(224, 224), iterations=100):
         resized_img = None
         
         # Warm-up run (to avoid CPU cold-start bias in VM)
-        # cv2.resize(img_4k, target_size, interpolation=cv2.INTER_NEAREST)
+        cv2.resize(img_4k, target_size, interpolation=cv2.INTER_NEAREST)
         
         for _ in range(iterations):
             start_time = time.perf_counter()
             
             # ---------------------------------------------------------
-            # TODO 1, 2, 3: Perform the actual resize operation using OpenCV.
-            # Replace the placeholder below with the correct cv2.resize call.
-            # Pass the 'flag' variable to the interpolation parameter.
+            # TODO 1: Resize to 224x224 using Nearest Neighbor (INTER_NEAREST)
+            # TODO 2: Resize to 224x224 using Bilinear     (INTER_LINEAR)
+            # TODO 3: Resize to 224x224 using Bicubic      (INTER_CUBIC)
+            # The 'flag' variable holds the correct cv2 constant each iteration.
             # ---------------------------------------------------------
-            # resized_img = ...
-            pass # Remove this when implemented
+            resized_img = cv2.resize(img_4k, target_size, interpolation=flag)
             
             end_time = time.perf_counter()
             times_ms.append((end_time - start_time) * 1000)
@@ -68,14 +68,11 @@ def benchmark_interpolation(img_4k, target_size=(224, 224), iterations=100):
         visuals[name] = resized_img
         
         # ---------------------------------------------------------
-        # TODO 4: Calculate Statistical Metrics
-        # Compute the mean and standard deviation of times_ms using NumPy.
+        # TODO 4: Calculate Statistical Metrics using NumPy
         # ---------------------------------------------------------
-        # mean_time = ...
-        # std_time = ...
-        
-        mean_time = 0.0 # Placeholder
-        std_time = 0.0  # Placeholder
+        times_array = np.array(times_ms)
+        mean_time   = np.mean(times_array)   # average latency in ms
+        std_time    = np.std(times_array)    # standard deviation in ms
         
         results[name] = (mean_time, std_time)
 
@@ -112,7 +109,7 @@ if __name__ == "__main__":
     # Run the benchmark
     stats, images = benchmark_interpolation(source_image, target_size=(224, 224), iterations=100)
     
-    # Calculate relative speed baseline (based on NEAREST if it exists)
+    # Calculate relative speed baseline (based on NEAREST)
     baseline_mean = stats.get("INTER_NEAREST", (0.0, 0.0))[0]
     
     # Print the Markdown Table
